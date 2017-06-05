@@ -3,11 +3,12 @@ package modelling.entities;
 import entities.computerSystem.ComputerSystem;
 import entities.task.TaskGraph;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-/**
- * Created by vadim on 10.05.14.
- */
+
 public class ResultModelling3 extends ResultModelling {
     public ResultModelling3(TaskGraph taskGraph, ComputerSystem computerSystem, int[] queue) {
         super(taskGraph, computerSystem, queue);
@@ -33,13 +34,12 @@ public class ResultModelling3 extends ResultModelling {
                         freeProcessor.setCurrentTask(readyTask);
                         isSomeActionOnCycle = true;
                     } else {
-                        //sending date
+                        //sending data
                         List<ModellingTask> receiveDataFromTasks = freeProcessor.needReceiveData(getDependsFrom(readyTask));
                         //define receive from processors
                         for (ModellingTask dataFromTask : receiveDataFromTasks) {
                             ModellingProcessor fromProcessor = getNearestProcessorWithData(freeProcessor, dataFromTask)[0];
                             ModellingProcessor sendToProcessor = getNearestProcessorWithData(freeProcessor, dataFromTask)[1];
-                            readyTask.onRecive  = sendToProcessor.getProcessor().getId();
                             int sendReceiveTime = defineSendTime(dataFromTask, readyTask, fromProcessor, sendToProcessor);
                             fromProcessor.sendData(dataFromTask, readyTask, sendToProcessor, sendReceiveTime);
                         }
@@ -75,11 +75,7 @@ public class ResultModelling3 extends ResultModelling {
         if (freeProcessors.size() == 1) return freeProcessors.get(0);
         List<ModellingTask> dependsFrom = task.getDependsFrom();
         Map<ModellingProcessor, Integer> processorsWay = new HashMap<>();
-
-        List<ModellingProcessor> sortedFreeProc = new ArrayList<>(freeProcessors);
-        sortedFreeProc.sort(Comparator.comparingInt(o -> o.getPhysicalLinks().size()));
-
-        for (ModellingProcessor freeProcessor : sortedFreeProc) {
+        for (ModellingProcessor freeProcessor : freeProcessors) {
             if (freeProcessor.haveAllData(task)) return freeProcessor;
             Map<ModellingProcessor, Double> receiveWeight = new HashMap<>();
             //define all processors with need data
@@ -99,25 +95,24 @@ public class ResultModelling3 extends ResultModelling {
 //                double receiveFromTaskWeight = receiveWeight.get(procWithData);
 //                sumWay *= receiveFromTaskWeight;
             }
-//            sumWay = freeProcessor.getPhysicalLinks().size();
-            processorsWay.put(freeProcessor, sumWay);
-//            sumWay *= receiveFromTaskWeight;
 //            processorsWay.put(freeProcessor, sumWay);
+//            sumWay *= receiveFromTaskWeight;
+            processorsWay.put(freeProcessor, sumWay);
         }
         //define min way
         int minWay = Integer.MAX_VALUE;
-        for (ModellingProcessor modellingProcessor : processorsWay.keySet()) {
-            if (processorsWay.get(modellingProcessor) < minWay) {
-                minWay = processorsWay.get(modellingProcessor);
-                processor = modellingProcessor;
-            }
-        }
-//        for (ModellingProcessor freeProcessor : freeProcessors) {
-//            if (processorsWay.get(freeProcessor) > minWay) {
-//                minWay = processorsWay.get(freeProcessor);
-//                processor = freeProcessor;
+//        for (ModellingProcessor modellingProcessor : processorsWay.keySet()) {
+//            if (processorsWay.get(modellingProcessor) < minWay) {
+//                minWay = processorsWay.get(modellingProcessor);
+//                processor = modellingProcessor;
 //            }
 //        }
+        for (ModellingProcessor freeProcessor : freeProcessors) {
+            if (processorsWay.get(freeProcessor) < minWay) {
+                minWay = processorsWay.get(freeProcessor);
+                processor = freeProcessor;
+            }
+        }
         return processor;
     }
 
