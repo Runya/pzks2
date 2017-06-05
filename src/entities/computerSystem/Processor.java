@@ -19,7 +19,7 @@ public class Processor implements Serializable {
 
     private Set<Integer> dependsFrom = new HashSet<>();
     private ArrayList<Integer> fatherFor = new ArrayList<>();
-    private int connectivity;
+    private int priority;
 
     public Processor(int id, int power, int x, int y) {
         this(id, x, y);
@@ -83,5 +83,9 @@ public class Processor implements Serializable {
                 "id=" + id +
                 ", power=" + power +
                 '}';
+    }
+
+    public int getPriority() {
+        return priority;
     }
 }

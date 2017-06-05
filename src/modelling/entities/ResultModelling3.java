@@ -3,10 +3,7 @@ package modelling.entities;
 import entities.computerSystem.ComputerSystem;
 import entities.task.TaskGraph;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class ResultModelling3 extends ResultModelling {
@@ -19,6 +16,9 @@ public class ResultModelling3 extends ResultModelling {
         initialStep();//step 0
         int step = 0;
         boolean isSomeActionOnCycle;
+
+
+
         while (isNonCompletedTasks()) {
             ModellingTask readyTask;
             List<ModellingProcessor> freeProcessors;
@@ -67,6 +67,9 @@ public class ResultModelling3 extends ResultModelling {
             if (processor.getState() == ModellingProcessor.State.FREE)
                 freeProcessors.add(processor);
         }
+
+        freeProcessors.sort(Comparator.comparingInt(o -> - o.getPriority()));
+
         return freeProcessors;
     }
 
@@ -100,7 +103,7 @@ public class ResultModelling3 extends ResultModelling {
             processorsWay.put(freeProcessor, sumWay);
         }
         //define min way
-        int minWay = Integer.MAX_VALUE;
+        int maxPriority = Integer.MIN_VALUE;
 //        for (ModellingProcessor modellingProcessor : processorsWay.keySet()) {
 //            if (processorsWay.get(modellingProcessor) < minWay) {
 //                minWay = processorsWay.get(modellingProcessor);
@@ -108,8 +111,8 @@ public class ResultModelling3 extends ResultModelling {
 //            }
 //        }
         for (ModellingProcessor freeProcessor : freeProcessors) {
-            if (processorsWay.get(freeProcessor) < minWay) {
-                minWay = processorsWay.get(freeProcessor);
+            if (freeProcessor.getPriority() > maxPriority) {
+                maxPriority = freeProcessor.getPriority();
                 processor = freeProcessor;
             }
         }
